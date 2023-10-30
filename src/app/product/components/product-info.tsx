@@ -32,7 +32,7 @@ const ProductInfo = ({
   };
 
   return (
-    <div className="flex flex-col px-5">
+    <div className="flex flex-col px-5 lg:min-h-full">
       <h2 className="text-lg">{name}</h2>
 
       <div className="flex-center flex gap-1">
