@@ -47,7 +47,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         </p>
       )}
 
-      <div className="items-cente mt-4 flex gap-2">
+      <div className="mt-4 flex items-center gap-2">
         <Button
           size="icon"
           variant="outline"
