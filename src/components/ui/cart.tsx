@@ -6,6 +6,7 @@ import CartItem from "./cart-item";
 import { computeProductTotalPrice } from "@/helpers/product";
 import { ScrollArea } from "./scroll-area";
 import { Separator } from "./separator";
+import { Button } from "./button";
 
 const Cart = () => {
   const { products, subtotal, total, totalDiscount } = useContext(CartContext);
@@ -70,6 +71,13 @@ const Cart = () => {
             <p>Total</p>
             <p>R$ {total.toFixed(2)}</p>
           </div>
+
+          <Button
+            className="mt-7 font-bold uppercase"
+            onClick={handleFinishPurchaseClick}
+          >
+            Finalizar compra
+          </Button>
         </div>
       )}
     </div>
