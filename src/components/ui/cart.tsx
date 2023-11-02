@@ -7,11 +7,19 @@ import { computeProductTotalPrice } from "@/helpers/product";
 import { ScrollArea } from "./scroll-area";
 import { Separator } from "./separator";
 import { Button } from "./button";
+import { createCheckout } from "@/actions/checkout";
+import { loadStripe } from "@stripe/stripe-js";
 
 const Cart = () => {
   const { products, subtotal, total, totalDiscount } = useContext(CartContext);
 
-  const handleFinishPurchaseClick = () => {};
+  const handleFinishPurchaseClick = async () => {
+    const checkout = await createCheckout(products);
+
+    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+
+    stripe?.redirectToCheckout({ sessionId: checkout.id });
+  };
 
   return (
     <div className="flex flex-col gap-8">
