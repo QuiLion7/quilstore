@@ -1,33 +1,33 @@
 "use client";
 
 import { ProductWithTotalPrice } from "@/helpers/product";
-import { ReactNode, createContext, useMemo, useState } from "react";
+import { ReactNode, createContext, useEffect, useMemo, useState } from "react";
 
 export interface CartProduct extends ProductWithTotalPrice {
   quantity: number;
 }
 
-interface ICardContext {
+interface ICartContext {
   products: CartProduct[];
   cartTotalPrice: number;
   cartBasePrice: number;
   cartTotalDiscount: number;
-  subtotal: number;
   total: number;
+  subtotal: number;
   totalDiscount: number;
   addProductToCart: (product: CartProduct) => void;
-  decreaseProductQuantity: (product: string) => void;
-  increaseProductQuantity: (product: string) => void;
-  removeProductFromCart: (product: string) => void;
+  decreaseProductQuantity: (productId: string) => void;
+  increaseProductQuantity: (productId: string) => void;
+  removeProductFromCart: (productId: string) => void;
 }
 
-export const CartContext = createContext<ICardContext>({
+export const CartContext = createContext<ICartContext>({
   products: [],
   cartTotalPrice: 0,
   cartBasePrice: 0,
   cartTotalDiscount: 0,
-  subtotal: 0,
   total: 0,
+  subtotal: 0,
   totalDiscount: 0,
   addProductToCart: () => {},
   decreaseProductQuantity: () => {},
@@ -38,21 +38,34 @@ export const CartContext = createContext<ICardContext>({
 const CartProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<CartProduct[]>([]);
 
+  useEffect(() => {
+    setProducts(
+      JSON.parse(localStorage.getItem("@quil-store/cart-products") || "[]"),
+    );
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("@fsw-store/cart-products", JSON.stringify(products));
+  }, [products]);
+
+  // Total sem descontos
   const subtotal = useMemo(() => {
     return products.reduce((acc, product) => {
       return acc + Number(product.basePrice) * product.quantity;
     }, 0);
   }, [products]);
 
+  // Total com descontos
   const total = useMemo(() => {
     return products.reduce((acc, product) => {
-      return acc + Number(product.totalPrice) * product.quantity;
+      return acc + product.totalPrice * product.quantity;
     }, 0);
   }, [products]);
 
   const totalDiscount = subtotal - total;
 
   const addProductToCart = (product: CartProduct) => {
+    // se o produto já estiver no carrinho, apenas aumente a sua quantidade
     const productIsAlreadyOnCart = products.some(
       (cartProduct) => cartProduct.id === product.id,
     );
@@ -66,11 +79,15 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
               quantity: cartProduct.quantity + product.quantity,
             };
           }
+
           return cartProduct;
         }),
       );
+
       return;
     }
+
+    // se não, adicione o produto à lista
     setProducts((prev) => [...prev, product]);
   };
 
@@ -120,12 +137,12 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
         decreaseProductQuantity,
         increaseProductQuantity,
         removeProductFromCart,
+        total,
+        subtotal,
+        totalDiscount,
         cartTotalPrice: 0,
         cartBasePrice: 0,
         cartTotalDiscount: 0,
-        subtotal,
-        total,
-        totalDiscount,
       }}
     >
       {children}
