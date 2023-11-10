@@ -7,16 +7,21 @@ import OrderItem from "./components/order-item";
 
 export const dynamic = "force-dynamic";
 
-const OrderPage = async () => {
-  const user = getServerSession(authOptions);
+async function OrderPage() {
+  const session = await getServerSession(authOptions);
 
-  if (!user) {
-    return <p>Access Denied</p>;
+  if (!session || !session.user) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2 p-5">
+        <h2 className="font-bold">Acesso Negado!</h2>
+        <p className="text-sm opacity-60">Faça login para ver seus pedidos</p>
+      </div>
+    );
   }
 
   const orders = await prismaClient.order.findMany({
     where: {
-      userId: (user as any).id,
+      userId: session.user.id,
     },
     include: {
       orderProducts: {
@@ -44,6 +49,6 @@ const OrderPage = async () => {
       </div>
     </div>
   );
-};
+}
 
 export default OrderPage;
